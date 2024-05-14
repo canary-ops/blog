@@ -23,7 +23,7 @@ jobs:
           filters: |
             infra:
                - 'infra/**'
-             src:
+            src:
                - 'src/**'
 
   deploy_base_infra:
