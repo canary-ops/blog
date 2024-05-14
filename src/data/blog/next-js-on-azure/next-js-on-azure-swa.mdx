@@ -39,6 +39,7 @@ based on the environment variables in GitHub.
 4. Deploy to Staging Environment: We deploy the build to a staging environment using the official [GitHub Action](https://github.com/Azure/static-web-apps-deploy?tab=readme-ov-file) for static web apps.
 This uses the [Oryx](https://github.com/microsoft/Oryx) build system which downloads a docker container to wrap CLI logic we would otherise implement manually. 
 Here we want to perform e2e tests in an environment as similar as possible to production without affecting the live site.
+5. Run E2E Tests: We use (very) simple PlayWright tests as Browser-based UI testing. This includes Firefox, Chrome and WebKit.
 5. Provision Production Environment: See step 3.
 6. Deploy to Production: Repeat step 4 but targeting the production environment.
 
@@ -82,5 +83,6 @@ This is a simple example. This could be extended to include:
 - Infrastructure Validation after a deployment.
 - Manual Control for production deployment.
 - Progressive Rollout or Canary Deployments (Potentially use Traffic Splitting feature for this in Static Web Apps).
+- Expand PlayWright to test logic such as contact form submission.
 
 In the next article, we will look at implementing a similar workflow for Blob Storage Hosting.
