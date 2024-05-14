@@ -1,0 +1,37 @@
+---
+title: Deploying Next-JS to Azure Static Web Apps using Bicep and GitHub Actions
+date: '2024-05-01'
+tags: ['next-js', 'azure', 'docker', 'static-web-apps', 'github-actions', 'bicep', 'bpmn']
+draft: false
+summary: Explaining how to deploy Next-JS to Static Web Apps using GitHub Actions
+---
+
+![Next-JS and SWA](/static/images/next_swa.png)
+
+
+In the second part of this series, we will look at deploying Next-JS to 
+Azure Static Web Apps using GitHub Actions and Bicep.
+
+## Source Control Strategy
+
+For the purposes of this article and in general we subscribe to the [Feature-Branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
+We only have a single main branch, but develop features in isolation and use the Pull-Request mechanism to 
+trigger a review and subsequent merge.
+
+## Workflow Definition in BPMN
+
+To consider our target workflow in abstract, a useful tool is [BPMN](https://www.bpmn.org/). Firstly just considering
+what happens when a PR is merged into main or a commit is directly pushed (shouldn't happen but does at the start of a project or in emergencies).
+
+### Main Branch Workflow
+![Workflow Diagram](/static/images/swa_bpmn_main.svg)
+
+This is a simplified workflow to demonstrate they key stages involved in a typical CI/CD process applied to a Next-JS build.
+In our simple example we have some (very) basic Jest integration tests and PlayWright E2E tests. We want to build test and deploy
+to a staging environment where we can perform e2e tests in an environment as similar as possible to production. 
+If this succeeds we then push to production.
+
+### PR Workflow
+![Workflow Diagram](/static/images/swa_bpmn_pr.svg)
+
+For a PR, we don't want to 
