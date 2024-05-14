@@ -13,6 +13,7 @@ jobs:
   build_job:
     runs-on: ubuntu-latest
     name: Build Job
+    needs: deploy_base_infra
     env:
       NEXT_UMAMI_ID: ${{ secrets.NEXT_UMAMI_ID }}
       NEXT_PUBLIC_GISCUS_REPO: ${{ vars.NEXT_PUBLIC_GISCUS_REPO }}
