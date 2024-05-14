@@ -6,14 +6,37 @@ on:
       - main
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      src: ${{ steps.filter.outputs.src }}
+    steps:
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+               - 'infra/**'
+             src:
+               - 'src/**'
+
   deploy_base_infra:
+    needs: changes
+    if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.src == 'true' }}
     secrets: inherit
     uses: ./.github/workflows/base_infra_swa.yml
 
   build_job:
+    needs: deploy_base_infra
+    if: ${{ needs.changes.outputs.src == 'true' }}
     runs-on: ubuntu-latest
     name: Build Job
-    needs: deploy_base_infra
     env:
       NEXT_UMAMI_ID: ${{ secrets.NEXT_UMAMI_ID }}
       NEXT_PUBLIC_GISCUS_REPO: ${{ vars.NEXT_PUBLIC_GISCUS_REPO }}
@@ -25,14 +48,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: "Only run if code (not infra) has changed"
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
 
       - name: Use Node.js
         uses: actions/setup-node@v4
