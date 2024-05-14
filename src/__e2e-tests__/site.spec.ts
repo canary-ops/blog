@@ -27,17 +27,25 @@ test('should show the contact form', async ({ page }) => {
 })
 
 const fs = require('fs')
-const fsp = fs.promises
+const path = require('path')
 
-async function readFiles(dirname) {
-  const files = await fsp.readdir(dirname)
-  return files.length
+const getFilesRecursively = (directory, files) => {
+  const filesInDirectory = fs.readdirSync(directory)
+  for (const file of filesInDirectory) {
+    const absolute = path.join(directory, file)
+    if (fs.statSync(absolute).isDirectory()) {
+      getFilesRecursively(absolute, files)
+    } else {
+      files.push(file)
+    }
+  }
+
+  return files
 }
-
 test('should show the correct number of blog articles', async ({ page }) => {
   const dir = './data/blog'
-  const numArticles = await readFiles(dir)
+  const files = getFilesRecursively(dir, [])
   // Check the number of blog articles defined in data folder matches rendered routes
   await page.goto('/blog')
-  await expect(page.locator('article')).toHaveCount(numArticles)
+  await expect(page.locator('article')).toHaveCount(files.length)
 })
