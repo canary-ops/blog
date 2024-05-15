@@ -14,14 +14,13 @@ Azure Static Web Apps using GitHub Actions and Bicep.
 
 ## Source Control Strategy
 
-For the purposes of this article and in general we subscribe to the [Feature-Branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
-We only have a single main branch, but develop features in isolation and use the Pull-Request mechanism to 
-trigger a review and subsequent merge.
+For the purposes of this article and in general we use the [Feature-Branch workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
+This consists of a main branch and multiple short-lived feature branches which are reviewed merged using the Pull-Request mechanism.
 
 ## Workflows
 
-To consider our target workflow in abstract, a useful tool is [BPMN](https://www.bpmn.org/). Firstly just considering
-what happens when a PR is merged into main or a commit is directly pushed (shouldn't happen but does at the start of a project or in emergencies).
+This article uses [BPMN](https://www.bpmn.org/) as a diagram standard fo describing top-level Workflows.
+Firstly we will look at the workflow triggered when a PR is merged into main or changes are directly pushed.
 
 ### Main Branch Workflow
 ![Workflow Diagram](/static/images/swa_bpmn_main.svg)
