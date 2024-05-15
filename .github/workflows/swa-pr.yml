@@ -34,7 +34,7 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.secrets
     runs-on: ubuntu-latest
     name: Build Job
     env:
