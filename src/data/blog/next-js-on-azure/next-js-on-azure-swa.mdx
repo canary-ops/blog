@@ -48,7 +48,7 @@ Here we want to perform e2e tests in an environment as similar as possible to pr
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-main.yml) based on the main workflow for this blog.
 
 ```yml:swa-main.yml
-name: Build and Push to Static Web App
+ name: Build and Push to Static Web App (Main)
 
 on:
   push:
@@ -74,13 +74,13 @@ jobs:
 
   deploy_base_infra:
     needs: validate_entry
-    if: ${{ needs.changes.outputs.infra == 'true' || needs.changes.outputs.src == 'true' }}
+    if: needs.validate_entry.outputs.infra || needs.validate_entry.outputs.src
     secrets: inherit
     uses: ./.github/workflows/base_infra_swa.yml
 
   build_job:
     needs: deploy_base_infra
-    if: ${{ needs.validate_entry.outputs.src == 'true' }}
+    if: needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
     env:
@@ -197,33 +197,7 @@ jobs:
           skip_app_build: true
           environment: production
           app_location: "build"
-
 ```
-
-### PR Workflow
-![Workflow Diagram](/static/images/swa_bpmn_pr.svg)
-
-For a PR, we want a simplified workflow that won't affect production but providers testers or developers
-a dedicated environment to review the PR. We also want to validate and assess any changes to Bicep code. One 
-limitation of using a static web app environments is that you can't easily review Bicep changes 
-without affecting the production site. So we settle for a **what-if** deployment and validation 
-as the basis for PR approval.
-
-Applied to our scenario, the steps translate as follows: 
-
-- If the PR includes Bicep changes, we validate and run the **what-if** deployment. This gives us a report 
-of changes that will be executed. We write this report to the PR in GitHub.
-- If the PR includes source changes, we follow these steps:
-    1. Execute Build: Similarly to the main pipeline we use node to build and export our Next-JS site. This includes linting and
-    type checking.
-    2. Run Integration Tests: We run our Jest tests.
-    3. Provision Preview Environment: This functionality is again, built in to Static Web Apps. When we execute the following steps
-       the [Oryx](https://github.com/microsoft/Oryx) tool will handle provisioning an environment based on the PR name. 
-    4. We deploy to a Preview Environment with a URL specific to this PR. Similar to steps 4 and 6 in the main pipeline we 
-    leverage the official [GitHub Action](https://github.com/Azure/static-web-apps-deploy?tab=readme-ov-file) for static web apps.
-
-*note: I suggest having physically separate yml files for main and PR workflows to minimize the amount
-of switching and filtering. In my experience this can lead to unreadable workflow files.
 
 #### YAML
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-pr.yml) based on the PR workflow for this blog.
@@ -257,7 +231,7 @@ jobs:
   validate_bicep:
     secrets: inherit
     needs: validate_entry
-    if: needs.validate_entry.outputs.infra == 'true'
+    if: needs.validate_entry.outputs.infra
     uses: ./.github/workflows/bicep_what_if.yml
     with:
       bicepMainPath: "./infra/swa/main.bicep"
@@ -265,7 +239,7 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == 'true'
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
     env:
