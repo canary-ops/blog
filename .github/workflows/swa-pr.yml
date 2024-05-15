@@ -7,8 +7,26 @@ on:
       - main
 
 jobs:
+  validate_entry:
+    runs-on: ubuntu-latest
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      src: ${{ steps.filter.outputs.src }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+               - 'infra/**'
+            src:
+               - 'src/**'
+
   validate_bicep:
     secrets: inherit
+    needs: validate_entry
+    if: needs.validate_entry.outputs.infra == 'true'
     uses: ./.github/workflows/bicep_what_if.yml
     with:
       bicepMainPath: "./infra/swa/main.bicep"
@@ -16,7 +34,7 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == 'true'
     runs-on: ubuntu-latest
     name: Build Job
     env:
