@@ -26,7 +26,7 @@ jobs:
   validate_bicep:
     secrets: inherit
     needs: validate_entry
-    if: needs.validate_entry.outputs.infra == 'true'
+    if: needs.validate_entry.outputs.infra
     uses: ./.github/workflows/bicep_what_if.yml
     with:
       bicepMainPath: "./infra/swa/main.bicep"
@@ -34,7 +34,7 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == 'true'
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
     env:
