@@ -24,13 +24,13 @@ jobs:
 
   deploy_base_infra:
     needs: validate_entry
-    if: needs.changes.outputs.infra == 'true' || needs.changes.outputs.src == 'true'
+    if: needs.validate_entry.outputs.infra || needs.validate_entry.outputs.src
     secrets: inherit
     uses: ./.github/workflows/base_infra_swa.yml
 
   build_job:
     needs: deploy_base_infra
-    if: needs.validate_entry.outputs.src == 'true'
+    if: needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
     env:
