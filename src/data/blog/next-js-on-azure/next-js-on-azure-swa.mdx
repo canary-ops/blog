@@ -31,18 +31,18 @@ This is a simplified workflow to demonstrate they key stages involved in a typic
 Applied to our scenario, the steps translate as follows: 
 
 1. Validate Entry Criteria: We use a path filter to look for changes in the **src** or **infra** folders.
-2. Execute Build: In the case of this example we use node to build our Next-JS site. As it's a simple blog so
-we export as a static site. This step includes linting and type-checking.
-3. Run integration tests: For demo purposes we have some (very) basic Jest integration tests.
-4. Provision Staging Environment: An Azure Static Web App comes with environments built-in, so this and step 5 are replaced with 
-a generic **base_infra** step that runs before the application build. This applies the Bicep Infrastructure as Code files 
-based on the environment variables in GitHub.
-5. Deploy to Staging Environment: We deploy the build to a staging environment using the official [GitHub Action](https://github.com/Azure/static-web-apps-deploy?tab=readme-ov-file) for static web apps.
+2. Provision Base Infrastructure: In our example this is a single Azure Static Web App, deployed with Bicep. This
+deployment is idempotent.
+23we export as a static site. This step includes linting and type-checking.
+4. Run integration tests: For demo purposes we have some (very) basic Jest integration tests.
+5. Provision Staging Environment: An Azure Static Web App comes with environments built-in, so this and step 8 are handled
+by a combination of step 2 and the following deployment step which sets up an environment.
+6. Deploy to Staging Environment: We deploy the build to a staging environment using the official [GitHub Action](https://github.com/Azure/static-web-apps-deploy?tab=readme-ov-file) for static web apps.
 This uses the [Oryx](https://github.com/microsoft/Oryx) build system which downloads a docker container to wrap CLI logic we would otherise implement manually. 
 Here we want to perform e2e tests in an environment as similar as possible to production without affecting the live site.
-6. Run E2E Tests: We use (very) simple PlayWright tests as Browser-based UI testing. This includes Firefox, Chrome and WebKit.
-7. Provision Production Environment: See step 4.
-8. Deploy to Production: Repeat step 5 but targeting the production environment.
+7. Run E2E Tests: We use (very) simple PlayWright tests as Browser-based UI testing. This includes Firefox, Chrome and WebKit.
+8. Provision Production Environment: See step 5.
+9. Deploy to Production: Repeat step 6 but targeting the production environment.
 
 #### YAML
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-main.yml) based on the main workflow for this blog.
@@ -198,6 +198,31 @@ jobs:
           environment: production
           app_location: "build"
 ```
+
+### PR Workflow
+![Workflow Diagram](/static/images/swa_bpmn_pr.svg)
+
+For a PR, we want a simplified workflow that won't affect production but providers testers or developers
+a dedicated environment to review the PR. We also want to validate and assess any changes to Bicep code. One 
+limitation of using a static web app environments is that you can't easily review Bicep changes 
+without affecting the production site. So we settle for a **what-if** deployment and validation 
+as the basis for PR approval.
+
+Applied to our scenario, the steps translate as follows: 
+
+  1. Validate Entry Criteria: We check if infrastructure or source control changes are included in the PR.
+  2. If the PR includes Bicep changes, we validate and run the **what-if** deployment. This gives us a report 
+of changes that will be executed. We write this report to the PR in GitHub.
+  3. If the PR includes source changes, we execute the build: Similarly to the main pipeline we use node to build and export our Next-JS site. This includes linting and
+type checking.
+  4. Run Integration Tests: We run our Jest tests.
+  5. Provision Preview Environment: This functionality is again, built in to Static Web Apps. When we execute the following steps
+the [Oryx](https://github.com/microsoft/Oryx) tool will handle provisioning an environment based on the PR name. 
+  6. We deploy to a Preview Environment with a URL specific to this PR. Similar to steps 4 and 6 in the main pipeline we 
+  leverage the official [GitHub Action](https://github.com/Azure/static-web-apps-deploy?tab=readme-ov-file) for static web apps.
+
+*note: I suggest having physically separate yml files for main and PR workflows to minimize the amount
+of switching and filtering. In my experience this can lead to unreadable workflow files.
 
 #### YAML
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-pr.yml) based on the PR workflow for this blog.
