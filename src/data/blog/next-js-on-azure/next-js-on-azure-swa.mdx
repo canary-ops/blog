@@ -266,6 +266,7 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
+    needs: validate_entry
     env:
       NEXT_UMAMI_ID: ${{ secrets.NEXT_UMAMI_ID }}
       NEXT_PUBLIC_GISCUS_REPO: ${{ vars.NEXT_PUBLIC_GISCUS_REPO }}
@@ -291,6 +292,7 @@ jobs:
         with:
           node-version: "20.x"
           cache: "npm"
+          cache-dependency-path: "src/package-lock.json"
 
       - name: run npm commands
         working-directory: src
@@ -330,7 +332,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            APIKEY=$(az staticwebapp secrets list --name ${{ secrets.SWA_APP_NAME }} | jq -r '.properties.apiKey')
+            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
             echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
 
       - name: Deploy to Preview
@@ -364,7 +366,7 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.STATIC_DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
           action: "close"
 
 ```
