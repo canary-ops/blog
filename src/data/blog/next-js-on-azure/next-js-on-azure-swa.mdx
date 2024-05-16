@@ -358,8 +358,7 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            resourceName=$(az resource list --resource-group $(resourceGroupName) --resource-type 'Microsoft.Web/staticSites' --query [].name --output tsv)
-            APIKEY=$(az staticwebapp secrets list --name $resourceName | jq -r '.properties.apiKey')
+            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
             echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
 
       - name: Close Pull Request
@@ -368,7 +367,6 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
           action: "close"
-
 ```
 
 ## Extensions
