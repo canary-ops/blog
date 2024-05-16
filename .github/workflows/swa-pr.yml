@@ -34,9 +34,10 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.secrets
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
+    needs: validate_entry
     env:
       NEXT_UMAMI_ID: ${{ secrets.NEXT_UMAMI_ID }}
       NEXT_PUBLIC_GISCUS_REPO: ${{ vars.NEXT_PUBLIC_GISCUS_REPO }}
