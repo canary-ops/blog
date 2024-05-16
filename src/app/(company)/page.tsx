@@ -368,33 +368,41 @@ export default function Company() {
             </p>
           </div>
           <div className="flex flex-col space-y-8 sm:gap-6 md:grid md:grid-cols-4 lg:space-y-0 xl:gap-10">
-            <div className="borderp-6 mx-auto flex max-w-lg flex-col rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8">
+            <div className="borderp-6 mx-auto flex max-w-lg flex-col rounded-lg bg-white p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:text-white xl:p-8">
               <a
                 href="https://www.antleaf.com"
                 target="_blank"
                 className=" h-24 w-24 bg-[url('/static/images/antleaf.jpg')] bg-contain bg-center bg-no-repeat"
-              ></a>
+              >
+                <span className="hidden">Antleaf</span>
+              </a>
             </div>
-            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8 ">
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg bg-white p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:text-white xl:p-8 ">
               <a
                 href="https://www.holisticfit.club/"
                 target="_blank"
                 className="h-24 w-24 bg-[url('/static/images/hfc.png')] bg-contain bg-center bg-no-repeat"
-              ></a>
+              >
+                <span className="hidden">HFC</span>
+              </a>
             </div>
-            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8 ">
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg bg-white p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:text-white xl:p-8 ">
               <a
                 href="https://www.omm.agency/"
                 target="_blank"
                 className="h-24 w-24 bg-[url('/static/images/omm.webp')] bg-contain bg-center bg-no-repeat"
-              ></a>
+              >
+                <span className="hidden">OMM</span>
+              </a>
             </div>
-            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8">
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg bg-white p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:text-white xl:p-8">
               <a
                 href="https://www.blitzhiit.co.uk"
                 target="_blank"
-                className="h-24 w-24 bg-[url('/static/images/blitz.png')] bg-contain bg-center bg-no-repeat p-2"
-              ></a>
+                className="h-24 w-24 bg-opacity-100 bg-[url('/static/images/blitz.png')] bg-contain bg-center bg-no-repeat p-2"
+              >
+                <span className="hidden">Blitz</span>
+              </a>
             </div>
           </div>
         </div>
