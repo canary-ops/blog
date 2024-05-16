@@ -1,7 +1,7 @@
 export default function Company() {
   return (
     <div>
-      <section className="mt-14 flex h-[calc(100dvh_-_3.5rem)] align-middle lg:pt-0">
+      <section className="mt-14 flex h-[calc(100dvh_-_3.5rem)] from-offsetGray  to-gray-600  align-middle antialiased  dark:bg-gradient-to-b lg:pt-0">
         <div className="mx-auto my-auto grid max-w-screen-xl px-4 lg:grid-cols-12 lg:gap-8 xl:gap-0">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="mb-4 max-w-2xl text-4xl font-extrabold leading-none tracking-tight dark:text-white md:text-5xl xl:text-6xl">
@@ -306,7 +306,7 @@ export default function Company() {
               </svg>
               <h3 className="mb-2 text-2xl font-bold dark:text-white">Observable Uptime</h3>
               <p className="font-light text-gray-500 dark:text-gray-400">
-                Zero-downtime deployments and best in class observability tools
+                Zero-downtime deployments and best in className observability tools
               </p>
             </div>
             <div>
@@ -352,6 +352,49 @@ export default function Company() {
               <p className="font-light text-gray-500 dark:text-gray-400">
                 Optimized Cloud Costs based on usage
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="bg-gray-50 dark:bg-gray-800">
+        <div className="mx-auto max-w-screen-xl px-4 py-8 lg:px-6 lg:py-24">
+          <div className="mx-auto mb-8 max-w-screen-md text-center lg:mb-12">
+            <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+              Our Clients
+            </h2>
+            <p className="mb-5 font-light text-gray-500 dark:text-gray-400 sm:text-xl">
+              Whilst we can work with any organsation, we focus on SME businesses that need Hosting,
+              DevOps or Cloud Administration Support.
+            </p>
+          </div>
+          <div className="flex flex-col space-y-8 sm:gap-6 md:grid md:grid-cols-4 lg:space-y-0 xl:gap-10">
+            <div className="borderp-6 mx-auto flex max-w-lg flex-col rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8">
+              <a
+                href="https://www.antleaf.com"
+                target="_blank"
+                className=" h-24 w-24 bg-[url('/static/images/antleaf.jpg')] bg-contain bg-center bg-no-repeat"
+              ></a>
+            </div>
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8 ">
+              <a
+                href="https://www.holisticfit.club/"
+                target="_blank"
+                className="h-24 w-24 bg-[url('/static/images/hfc.png')] bg-contain bg-center bg-no-repeat"
+              ></a>
+            </div>
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8 ">
+              <a
+                href="https://www.omm.agency/"
+                target="_blank"
+                className="h-24 w-24 bg-[url('/static/images/omm.webp')] bg-contain bg-center bg-no-repeat"
+              ></a>
+            </div>
+            <div className="borderp-6 mx-auto flex max-w-lg rounded-lg p-2 text-center text-gray-900 shadow dark:border-gray-600 dark:bg-white dark:text-white xl:p-8">
+              <a
+                href="https://www.blitzhiit.co.uk"
+                target="_blank"
+                className="h-24 w-24 bg-[url('/static/images/blitz.png')] bg-contain bg-center bg-no-repeat p-2"
+              ></a>
             </div>
           </div>
         </div>
