@@ -255,7 +255,7 @@ jobs:
   validate_bicep:
     secrets: inherit
     needs: validate_entry
-    if: needs.validate_entry.outputs.infra
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.infra
     uses: ./.github/workflows/bicep_what_if.yml
     with:
       bicepMainPath: "./infra/swa/main.bicep"
