@@ -325,7 +325,7 @@ export default function Company() {
                     ></path>
                   </svg>
                   <span className="text-base font-medium leading-tight text-gray-900 dark:text-white">
-                    Budgets and Cost Management
+                    Budgets and cost management
                   </span>
                 </li>
               </ul>
