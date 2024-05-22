@@ -10,7 +10,7 @@ const siteMetadata = {
   siteUrl: 'https://canaryops.co.uk',
   siteRepo: 'https://github.com/horizonmode/blog/src',
   siteLogo: '/static/images/logo.png',
-  socialBanner: '/static/images/twitter-card.png',
+  socialBanner: '/static/images/twitter_card.png',
   github: 'https://github.com/horizonmode',
   linkedin: 'https://www.linkedin.com',
   locale: 'en-US',
