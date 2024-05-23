@@ -1,5 +1,8 @@
 name: Build and Push to Static Web App (Main)
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   validate_entry:
@@ -77,30 +80,22 @@ jobs:
           name: build
           path: build
 
-      - name: "Login to Azure"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Get Deployment Token for Static Web App
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
-            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
-
-      - name: Deploy to Staging
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         id: deploy_to_staging
-        uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          skip_app_build: true
-          deployment_environment: staging
-          app_location: "build"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+          directory: build
+          # Optional: Enable this if you want to have GitHub Deployments triggered
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: Switch what branch you are publishing to.
+          # By default this will be the branch which triggered this workflow
+          branch: staging
+        
     outputs:
-      staging_url: ${{ steps.deploy_to_staging.outputs.static_web_app_url }}
+      staging_url: ${{ steps.deploy_to_staging.outputs.url }}
 
   run_e2e_tests_staging:
     needs: deploy_to_staging
@@ -122,24 +117,12 @@ jobs:
           name: build
           path: build
 
-      - name: "Login to Azure"
-        uses: azure/login@v1
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Get Deployment Token for Static Web App
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
-            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
-
-      - name: Deploy to Prod
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          skip_app_build: true
-          environment: production
-          app_location: "build"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+          directory: build
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
