@@ -16,19 +16,11 @@ jobs:
         id: filter
         with:
           filters: |
-            infra:
-               - 'infra/**'
             src:
                - 'src/**'
 
-  deploy_base_infra:
-    needs: validate_entry
-    if: needs.validate_entry.outputs.infra || needs.validate_entry.outputs.src
-    secrets: inherit
-    uses: ./.github/workflows/base_infra_swa.yml
-
   build_job:
-    needs: deploy_base_infra
+    needs: validate_entry
     if: needs.validate_entry.outputs.src
     runs-on: ubuntu-latest
     name: Build Job
