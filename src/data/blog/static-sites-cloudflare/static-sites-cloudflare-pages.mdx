@@ -10,7 +10,8 @@ summary: Overview of pipeline design for deploying static sites to Cloudflare Pa
 
 This article will cover pipeline design for deploying a static site to CloudFlare Pages via GitHub Actions.
 similar to GitHub pages, Cloudflare offers a simple managed solution for deploying static sites. It's a very cheap
-option, even having a free tier that works for personal sites.
+option, even having a free tier that works for personal sites. CloudFlare does have it's own build system but
+we prefer integrating with GitHub Actions for visibility and standardisation purposes across projects.
 
 ## Source Control Branching Strategy
 
@@ -23,7 +24,7 @@ This article uses [BPMN](https://www.bpmn.org/) as a diagram standard fo describ
 Firstly we will look at the workflow triggered when code is pushed, or a PR is merged into main.
 
 ### Main Branch Workflow
-![Workflow Diagram](/static/images/swa_bpmn_main.svg)
+![Workflow Diagram](/static/images/cf_bpmn_main.svg)
 
 This is a workflow without baseline Infrastructure as Code, because CloudFlare handle base infrastructure for us.
 
@@ -165,7 +166,7 @@ jobs:
 ```
 
 ### PR Workflow
-![Workflow Diagram](/static/images/swa_bpmn_pr.svg)
+![Workflow Diagram](/static/images/cf_bpmn_pr.svg)
 
 For a PR, we want a simplified workflow that won't affect production but providers testers or developers
 a dedicated environment to review the PR.
