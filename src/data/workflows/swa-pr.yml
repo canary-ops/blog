@@ -26,7 +26,7 @@ jobs:
   validate_bicep:
     secrets: inherit
     needs: validate_entry
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.infra
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.infra == true
     uses: ./.github/workflows/bicep_what_if.yml
     with:
       bicepMainPath: "./infra/swa/main.bicep"
@@ -34,7 +34,7 @@ jobs:
       resourceGroup: ${{ vars.SWA_RG }}
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
@@ -49,14 +49,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: "Only run if code (not infra) has changed"
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
 
       - name: Use Node.js
         uses: actions/setup-node@v3

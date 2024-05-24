@@ -37,14 +37,6 @@ jobs:
           submodules: true
           lfs: false
 
-      - name: "Only run if code (not infra) has changed"
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
-
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:

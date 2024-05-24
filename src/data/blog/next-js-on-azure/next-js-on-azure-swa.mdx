@@ -44,11 +44,10 @@ Here we want to perform e2e tests in an environment as similar as possible to pr
 9. Deploy to Production: Repeat step 6 but targeting the production environment.
 
 #### YAML
-Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-main.yml) based on the main workflow for this blog.
+Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/src/data/workflows/swa-main.yml) based on the main workflow for this blog.
 
 ```yml:swa-main.yml
- name: Build and Push to Static Web App (Main)
-
+name: Build and Push to Static Web App (Main)
 on:
   push:
     branches:
@@ -73,13 +72,13 @@ jobs:
 
   deploy_base_infra:
     needs: validate_entry
-    if: needs.validate_entry.outputs.infra || needs.validate_entry.outputs.src
+    if: needs.validate_entry.outputs.infra == true || needs.validate_entry.outputs.src == true
     secrets: inherit
     uses: ./.github/workflows/base_infra_swa.yml
 
   build_job:
     needs: deploy_base_infra
-    if: needs.validate_entry.outputs.src
+    if: needs.validate_entry.outputs.src == true
     runs-on: ubuntu-latest
     name: Build Job
     env:
@@ -196,6 +195,7 @@ jobs:
           skip_app_build: true
           environment: production
           app_location: "build"
+
 ```
 
 ### PR Workflow
@@ -224,10 +224,10 @@ the [Oryx](https://github.com/microsoft/Oryx) tool will handle provisioning an e
 of switching and filtering. In my experience this can lead to unreadable workflow files.
 
 #### YAML
-Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/swa-pr.yml) based on the PR workflow for this blog.
+Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/src/data/workflows/swa-pr.yml) based on the PR workflow for this blog.
 
 ```yml:swa-pr.yml
-name: Build and Push to Static Web App (PR)
+name: Build and Push to Cloudflare Pages (PR)
 
 on:
   pull_request:
@@ -239,7 +239,6 @@ jobs:
   validate_entry:
     runs-on: ubuntu-latest
     outputs:
-      infra: ${{ steps.filter.outputs.infra }}
       src: ${{ steps.filter.outputs.src }}
     steps:
       - uses: actions/checkout@v4
@@ -247,23 +246,11 @@ jobs:
         id: filter
         with:
           filters: |
-            infra:
-               - 'infra/**'
             src:
                - 'src/**'
 
-  validate_bicep:
-    secrets: inherit
-    needs: validate_entry
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.infra
-    uses: ./.github/workflows/bicep_what_if.yml
-    with:
-      bicepMainPath: "./infra/swa/main.bicep"
-      params: "appName=${{ vars.SWA_APP_NAME }}"
-      resourceGroup: ${{ vars.SWA_RG }}
-
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
@@ -323,50 +310,14 @@ jobs:
           name: build
           path: build
 
-      - name: "Login to Azure"
-        uses: azure/login@v1
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Get Deployment Token for Static Web App
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
-            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
-
-      - name: Deploy to Preview
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          skip_app_build: true
-          app_location: "build"
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: "Login to Azure"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Get Deployment Token for Static Web App
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
-            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
-
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
-          action: "close"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+          directory: build
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Extensions
@@ -383,5 +334,3 @@ This is a simple example. This could be extended to include:
 - Progressive Rollout or Canary Deployments (Potentially use Traffic Splitting feature for this in Static Web Apps).
 - Expand PlayWright to test logic such as contact form submission.
 - Implement a shorter workflow for simple content updates (Potentially filter steps based on changes to the data folder)
-
-In the next article, we will look at implementing a similar workflow for Blob Storage Hosting.

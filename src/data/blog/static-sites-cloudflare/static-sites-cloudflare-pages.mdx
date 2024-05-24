@@ -210,7 +210,7 @@ jobs:
                - 'src/**'
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
@@ -225,14 +225,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: "Only run if code (not infra) has changed"
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
 
       - name: Use Node.js
         uses: actions/setup-node@v3
