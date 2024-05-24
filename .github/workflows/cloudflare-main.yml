@@ -1,4 +1,4 @@
-name: Build and Push to Static Web App (Main)
+name: Build and Push to Cloudflare Pages (Main)
 on:
   push:
     branches:
@@ -84,7 +84,7 @@ jobs:
           # Optional: Switch what branch you are publishing to.
           # By default this will be the branch which triggered this workflow
           branch: staging
-        
+
     outputs:
       staging_url: ${{ steps.deploy_to_staging.outputs.url }}
 
