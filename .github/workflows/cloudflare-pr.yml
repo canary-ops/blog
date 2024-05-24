@@ -21,7 +21,7 @@ jobs:
                - 'src/**'
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
