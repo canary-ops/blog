@@ -8,7 +8,6 @@ summary: Overview of pipeline design for deploying Next-JS to Azure Static Web A
 
 ![Next-JS and SWA](/static/images/next_swa.png)
 
-
 In the second part of this series, we will look at deploying Next-JS to 
 Azure Static Web Apps using GitHub Actions and Bicep.
 
@@ -72,13 +71,13 @@ jobs:
 
   deploy_base_infra:
     needs: validate_entry
-    if: needs.validate_entry.outputs.infra == true || needs.validate_entry.outputs.src == true
+    if: needs.validate_entry.outputs.infra == 'true' || needs.validate_entry.outputs.src == 'true'
     secrets: inherit
     uses: ./.github/workflows/base_infra_swa.yml
 
   build_job:
     needs: deploy_base_infra
-    if: needs.validate_entry.outputs.src == true
+    if: needs.validate_entry.outputs.src == 'true'
     runs-on: ubuntu-latest
     name: Build Job
     env:
@@ -227,7 +226,7 @@ of switching and filtering. In my experience this can lead to unreadable workflo
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/src/data/workflows/swa-pr.yml) based on the PR workflow for this blog.
 
 ```yml:swa-pr.yml
-name: Build and Push to Cloudflare Pages (PR)
+name: Build and Push to Static Web App (PR)
 
 on:
   pull_request:
@@ -239,6 +238,7 @@ jobs:
   validate_entry:
     runs-on: ubuntu-latest
     outputs:
+      infra: ${{ steps.filter.outputs.infra }}
       src: ${{ steps.filter.outputs.src }}
     steps:
       - uses: actions/checkout@v4
@@ -246,11 +246,23 @@ jobs:
         id: filter
         with:
           filters: |
+            infra:
+               - 'infra/**'
             src:
                - 'src/**'
 
+  validate_bicep:
+    secrets: inherit
+    needs: validate_entry
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.infra == 'true'
+    uses: ./.github/workflows/bicep_what_if.yml
+    with:
+      bicepMainPath: "./infra/swa/main.bicep"
+      params: "appName=${{ vars.SWA_APP_NAME }}"
+      resourceGroup: ${{ vars.SWA_RG }}
+
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == 'true'
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
@@ -265,14 +277,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-
-      - name: "Only run if code (not infra) has changed"
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            src:
-              - 'src/**'
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -310,14 +314,50 @@ jobs:
           name: build
           path: build
 
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: "Login to Azure"
+        uses: azure/login@v1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
-          directory: build
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Deployment Token for Static Web App
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
+            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
+
+      - name: Deploy to Preview
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          action: "upload"
+          skip_app_build: true
+          app_location: "build"
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: "Login to Azure"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get Deployment Token for Static Web App
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            APIKEY=$(az staticwebapp secrets list --name ${{ vars.SWA_APP_NAME }} | jq -r '.properties.apiKey')
+            echo "STATIC_DEPLOYMENT_TOKEN=$APIKEY" >> $GITHUB_ENV
+
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ env.STATIC_DEPLOYMENT_TOKEN }}
+          action: "close"
 ```
 
 ## Extensions
