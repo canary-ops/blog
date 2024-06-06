@@ -25,9 +25,7 @@ const Header = ({ navLinks }: Props) => {
             {link.title}
           </Link>
         ))}
-        <SearchButton />
         <ThemeSwitch />
-        <MobileNav />
       </div>
     </header>
   )
