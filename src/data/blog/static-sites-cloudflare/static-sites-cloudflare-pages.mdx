@@ -44,7 +44,7 @@ deploy to the production environment.
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/cloudflare-main.yml) based on the main workflow for this blog.
 
 ```yml:cloudflare-main.yml
- name: Build and Push to CloudFlare (Main)
+name: Build and Push to Cloudflare Pages (Main)
 on:
   push:
     branches:
@@ -66,7 +66,7 @@ jobs:
 
   build_job:
     needs: validate_entry
-    if: needs.validate_entry.outputs.src
+    if: needs.validate_entry.outputs.src == 'true'
     runs-on: ubuntu-latest
     name: Build Job
     env:
@@ -130,7 +130,7 @@ jobs:
           # Optional: Switch what branch you are publishing to.
           # By default this will be the branch which triggered this workflow
           branch: staging
-        
+
     outputs:
       staging_url: ${{ steps.deploy_to_staging.outputs.url }}
 
@@ -186,7 +186,7 @@ of switching and filtering. In my experience this can lead to unreadable workflo
 #### YAML
 Here is an example [yaml](https://github.com/canary-ops/blog/blob/main/.github/workflows/cloudflare-pr.yml) based on the PR workflow for this blog.
 
-```yml:swa-pr.yml
+```yml:cloudflare-pr.yml
 name: Build and Push to Cloudflare Pages (PR)
 
 on:
@@ -210,7 +210,7 @@ jobs:
                - 'src/**'
 
   build_job:
-    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == true
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && needs.validate_entry.outputs.src == 'true'
     runs-on: ubuntu-latest
     name: Build Job
     needs: validate_entry
