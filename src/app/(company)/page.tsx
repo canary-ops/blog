@@ -132,12 +132,12 @@ export default function Company() {
             />
             <div className="text-gray-500 dark:text-gray-400 sm:text-lg">
               <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                24/7 Support
+                Linode Specialists
               </h2>
               <p className="mb-8 font-light lg:text-xl">
-                We provide support for applications and infrastructure deployed to any cloud
-                environment. But crucially we aim to improve your monitoring and alerts capability
-                so we won't need to.
+                We provide support for applications and infrastructure deployed to Linode. But
+                crucially we aim to improve your monitoring and alerts capability so we won't need
+                to.
               </p>
               <ul className="my-7 space-y-5 border-t border-gray-200 pt-8 dark:border-gray-700">
                 <li className="flex space-x-3">
